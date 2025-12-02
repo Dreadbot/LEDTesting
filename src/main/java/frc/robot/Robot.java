@@ -29,7 +29,9 @@ public class Robot extends TimedRobot {
   private final RobotContainer m_robotContainer;
 
   private final int flame_count = 6;
-  private final int led_count = 30;
+  private final double strip_length = 1.092;
+  private final double leds_per_meter = 1 / 0.0062;
+  private final int led_count = (int)(strip_length * leds_per_meter);
   private final ArrayList<AddressableLEDBufferView> flames = new ArrayList<>();
 
  
@@ -57,11 +59,12 @@ public class Robot extends TimedRobot {
 
     // Reuse buffer
       // Length is expensive to set, so only set it once, then just update data
-    m_ledBuffer = new AddressableLEDBuffer(flame_count*led_count);
+    m_ledBuffer = new AddressableLEDBuffer(flame_count * led_count);
     m_led.setLength(m_ledBuffer.getLength());
 
-    for(int i=0; i < flame_count; i++){
-      flames.add( m_ledBuffer.createView(i * led_count, i* led_count+led_count-1));
+    int leds_per_segment = (int) ((double) led_count / flame_count);
+    for(int i = 0; i < flame_count; i++){
+      flames.add(m_ledBuffer.createView(i * leds_per_segment, leds_per_segment * (i + 1) - 1));
     }
   
 
