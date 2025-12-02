@@ -7,6 +7,8 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Second;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.AddressableLEDBufferView;
@@ -26,57 +28,74 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
-  private final int flame_count;
-  private final int led_count = 10;
-  private final AddressableLEDBufferView[] flames;
+  private final int flame_count = 6;
+  private final int led_count = 30;
+  private final ArrayList<AddressableLEDBufferView> flames = new ArrayList<>();
 
+ 
   final AddressableLED m_led;
   final AddressableLEDBuffer m_ledBuffer;
-  final LEDPattern current_pattern;
+
+  final LEDPattern flamePattern0;
+  final LEDPattern flamePattern1;
+  final LEDPattern flamePattern2;
+  final LEDPattern flamePattern3;
+  final LEDPattern flamePattern4;
+  final LEDPattern flamePattern5;
+  
+  
+  
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   public Robot() {
-    flame_count = 0;
-    //flames
+  
     //PWM port 0
     // Must be a PWM header, not MXP or DIO
     m_led = new AddressableLED(0);
 
     // Reuse buffer
-    // Default to a length of 60, start empty output
-    // Length is expensive to set, so only set it once, then just update data
-    m_ledBuffer = new AddressableLEDBuffer(200);
+      // Length is expensive to set, so only set it once, then just update data
+    m_ledBuffer = new AddressableLEDBuffer(flame_count*led_count);
     m_led.setLength(m_ledBuffer.getLength());
 
-    // Create the view for the leaf sections 
-    AddressableLEDBufferView m_leaf1 = m_ledBuffer.createView(0, 24);
-    AddressableLEDBufferView m_leaf2 = m_ledBuffer.createView(25, 199);
-  //AddressableLEDBufferView m_leaf3 = m_ledBuffer.createView(70, 94);
-  //AddressableLEDBufferView m_leaf4 = m_ledBuffer.createView(105, 129);
-  //AddressableLEDBufferView m_leaf5 = m_ledBuffer.createView(140, 164);
-  //AddressableLEDBufferView m_leaf6 = m_ledBuffer.createView(175, 199);
+    for(int i=0; i < flame_count; i++){
+      flames.add( m_ledBuffer.createView(i * led_count, i* led_count+led_count-1));
+    }
+  
 
+    
     // create and LED patern that sets the entire strip to solid blue
-    LEDPattern maroon = LEDPattern.solid(Color.kMaroon);
-    LEDPattern blue = LEDPattern.solid(Color.kBlue);
+    LEDPattern red = LEDPattern.solid(Color.kRed);
+    LEDPattern redBreathe=red.breathe(Second.of(2));
+    LEDPattern rainbow = LEDPattern.rainbow(255, 128);
+    LEDPattern rainbowScroll = rainbow.scrollAtRelativeSpeed(Percent.per(Second).of(50));
     double percent_scroll = 25.0;
     LEDPattern gradient = LEDPattern.gradient(
         LEDPattern.GradientType.kContinuous, Color.kOrange, Color.kRed);
-    LEDPattern scroll = gradient.scrollAtRelativeSpeed(Percent.per(Second).of(percent_scroll));
-    
+    LEDPattern scroll1 = gradient.scrollAtRelativeSpeed(Percent.per(Second).of(percent_scroll));
+    LEDPattern scroll2 = gradient.scrollAtRelativeSpeed(Percent.per(Second).of(50));
+    LEDPattern green = LEDPattern.solid(Color.kGreen);
+    LEDPattern purple = LEDPattern.solid(Color.kPurple);
+    LEDPattern redBreathe2 = red.breathe(Second.of(2));
     // apply the LED pattern to the buffer
     
-    //ledColor.applyTo(m_leaf3);
-    //blue.applyTo(m_leaf4);
-    //ledColor.applyTo(m_leaf5);
-    //blue.applyTo(m_leaf6);
-    current_pattern = scroll;
-    // Set the data
-    //m_led.setData(m_leaf1);
-    blue.applyTo(m_leaf1);
-    current_pattern.applyTo(m_leaf2);
+   flamePattern0=purple;
+   flamePattern1=scroll1;
+   flamePattern2=redBreathe;
+   flamePattern3=scroll2;
+   flamePattern4=rainbowScroll;
+   flamePattern5=redBreathe2;
+
+    flamePattern0.applyTo(flames.get(0));
+    flamePattern1.applyTo(flames.get(1));
+    flamePattern2.applyTo(flames.get(2));
+    flamePattern3.applyTo(flames.get(3));
+    flamePattern4.applyTo(flames.get(4));
+    flamePattern5.applyTo(flames.get(5));
+   
+    m_led.setData(m_ledBuffer);
     m_led.start();
     
 
@@ -101,7 +120,14 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-    //current_pattern.applyTo(m_ledBuffer);
+
+    flamePattern0.applyTo(flames.get(0));
+    flamePattern1.applyTo(flames.get(1));
+    flamePattern2.applyTo(flames.get(2));
+    flamePattern3.applyTo(flames.get(3));
+    flamePattern4.applyTo(flames.get(4));
+    flamePattern5.applyTo(flames.get(5));
+
     m_led.setData(m_ledBuffer);
   }
 
